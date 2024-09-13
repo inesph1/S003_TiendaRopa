@@ -1,0 +1,48 @@
+<!--Guarda todos los codigos que se quieran reutilizar en el html-->
+
+<!--Cabecera con accesos directos-->
+<div th:fragment="cabecera">
+	<header>
+		<div id="header">
+			<h1>Tienda Ropa</h1>
+		</div>
+
+		<!--		<div id="header_der">-->
+		<!--			<img src="imagenes/facebook.png" alt="acceso a facebook" width="48px" height="48px">-->
+		<!--			<img src="imagenes/instagram.png" alt="acceso a instagram" width="48px" height="48px">-->
+		<!--		</div>-->
+	</header>
+</div>
+
+<!--NAVBAR-->
+<div th:fragment="navBar">
+	<nav>
+		<ul th:each="elemento : ${atr_listaCategorias}">
+			<li>
+				<a th:href="@{/menuGenerico(id=${elemento.id})}" class="enlace_menu"
+					th:text="${elemento.categoria}"></a>
+			</li>
+		</ul>
+	</nav>
+</div>
+
+
+<!--Contenedor productos-->
+<div th:fragment="contenedorProductos">
+	<section class="productos-container">
+		<div class="producto" th:each="elemento : ${atr_listaProductos}">
+			<img th:src="@{'/imagenes/' + ${elemento.foto}}" alt="">
+			<h3 th:text=${elemento.nombre}></h3>
+			<p th:text="${elemento.precio}" class="precio"> €</p>
+			<p>Talla: M</p>
+		</div>
+
+	</section>
+</div>
+
+<!--FOOTER-->
+<div th:fragment="pie">
+	<footer>
+		<p>Tienda de ropa S.L.</p>
+	</footer>
+</div>

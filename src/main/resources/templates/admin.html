@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="estilos/principal.css">
+	<link rel="stylesheet" href="estilos/admin.css">
+	<title>Inicio</title>
+</head>
+
+<body>
+
+	<div th:include="plantilla.html::cabecera"></div>
+
+	<div th:include="plantilla.html::navBar"></div>
+
+	<main>
+		<form class="product-form" method="POST" enctype="multipart/form-data" th:action="@{/guardarProducto}" th:object="${obj_producto}">
+
+			<div class="form-group">
+				<label for="productName">Nombre:</label>
+				<input th:field="*{nombre}" type="text" id="productName" name="nombre" required />
+			</div>
+
+			<div class="form-group">
+				<label for="productPrice">Precio:</label>
+				<input th:field="*{precio}" type="number" id="productPrice" name="precio" step="0.01" required />
+			</div>
+
+			<div class="form-group">
+				<label for="talla">Talla:</label>
+				<input type="text" id="talla" name="talla" required />
+			</div>
+
+			<div class="form-group">
+				<label for="productCategory">Categoría:</label>
+				<select th:field="*{categoria.id}">
+					<option th:each="elem : ${atr_listaCategorias}" th:value="${elem.id}" th:text="${elem.categoria}">
+					</option>
+				</select>
+				
+			</div>
+
+			<div class="form-group">
+				<label for="GenderCategory">Genero:</label>
+				<select th:field="*{genero.id}" id="GenderCategory" name="genero">
+					<option th:each="elem: ${atr_listaGeneros}" th:value="${elem.id}" th:text="${elem.genero}"></option>
+				</select>
+			</div>
+
+			<div class="form-group">
+				<label for="productImage">Imagen:</label>
+				<input type="file" id="imagen" name="imagen" accept="image/*" />
+			</div>
+
+			<button type="submit" class="submit-button">Guardar Producto</button>
+		</form>
+
+		<table>
+			<thead>
+				<th>Id</th>
+				<th>Producto</th>
+				<th>Precio</th>
+				<th>Categoria</th>
+				<th>Seccion</th>
+				<th>Opciones</th>
+			</thead>
+			<tbody>
+				<tr th:each="elemento : ${atr_listaProductos}">
+					<td th:text="${elemento.id}"></td>
+					<td th:text="${elemento.nombre}"></td>
+					<td th:text="${elemento.precio}"></td>
+					<td th:text="${elemento.categoria.categoria}"></td>
+					<td th:text="${elemento.genero.genero}"></td>
+					<td>
+						<a th:href="@{/adminModificarPrenda(id=${elemento.id})}">Modificar </a>
+						<br>
+						<a th:href="@{/adminBorrarPrenda(id=${elemento.id})}">Borrar</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+
+	<div th:include="plantilla.html::pie"></div>
+
+</body>
+
+</html>
