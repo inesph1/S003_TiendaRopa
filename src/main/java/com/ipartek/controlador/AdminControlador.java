@@ -2,6 +2,9 @@ package com.ipartek.controlador;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ipartek.auxiliares.Auxiliar;
 import com.ipartek.modelo.Producto;
 import com.ipartek.repositorio.CategoriaRepo;
 import com.ipartek.repositorio.GeneroRepo;
@@ -58,31 +62,10 @@ public class AdminControlador {
 		System.out.println("--------------------------------------------------------------");
 		System.out.println(producto);
 
-		//String uploadDir = "./imagenes/"; // Cambia esto a la ruta de tu directorio
 
-		if (!foto.isEmpty()) {
-			// Genera un nombre único para el archivo
-			String filename = foto.getOriginalFilename();
-			producto.setFoto(filename);
-//			String filePath = uploadDir + File.separator + filename;
-//
-//			// Guarda el archivo en el servidor
-//			File file = new File(filePath);
-//			try {
-//				foto.transferTo(file);
-//				// Guarda la URL o el nombre del archivo en la base de datos
-//				producto.setFoto(filename); // Asegúrate de que esta ruta sea accesible
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//				modelo.addAttribute("error", "Error al guardar el archivo");
-//				System.out.println("ERROR");
-//				return "redirect:/superuser"; // LLEVAR A ERROR
-//			}
-		} else {
-			
-			producto.setFoto("default.jpg"); 
-		}
-		repoProductos.save(producto);
+
+		Auxiliar.guardarImagen(producto, foto);
+	        repoProductos.save(producto);
 		return "redirect:/superuser";
 	}
 
