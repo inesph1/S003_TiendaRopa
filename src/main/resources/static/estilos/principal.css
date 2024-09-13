@@ -53,6 +53,16 @@ nav ul li a:hover {
     background-color: #555;
 }
 
+.enlace_menu {
+    color: #fff; /* Color del texto */
+    text-decoration: none; /* Sin subrayado */
+    font-weight: bold; /* Negrita */
+}
+
+.enlace_menu:hover {
+    text-decoration: underline; /* Subrayado al pasar el ratón */
+}
+
 /* Contenido principal */
 main {
     margin-left: 200px; /* Espacio para el menú lateral */
