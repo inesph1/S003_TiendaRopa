@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +28,8 @@ public class Auxiliar {
 	public static void guardarImagen(Producto prod, MultipartFile archivo) {
 		if(!archivo.isEmpty()) {
 			try {
-				String nombreArchivo = archivo.getOriginalFilename();
+				Date fecha = new Date();
+				String nombreArchivo =  fecha.getTime()+archivo.getOriginalFilename();
 				Path ruta = Paths.get("src/main/resources/static/imagenes", nombreArchivo);
 				
 				Files.write(ruta, archivo.getBytes());

@@ -19,9 +19,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ipartek.auxiliares.Auxiliar;
 import com.ipartek.modelo.Producto;
+import com.ipartek.modelo.Usuario;
 import com.ipartek.repositorio.CategoriaRepo;
 import com.ipartek.repositorio.GeneroRepo;
 import com.ipartek.repositorio.ProductosRepo;
+
+import jakarta.servlet.http.HttpSession;
+import jakarta.websocket.Session;
 
 @Controller
 public class AdminControlador {
@@ -37,16 +41,45 @@ public class AdminControlador {
 	// private String uploadDir;
 
 	@RequestMapping("/superuser")
-	public String inicioAdmin(Model modelo) {
-		modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
-		modelo.addAttribute("atr_listaProductos", repoProductos.findAll());
-		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
+	public String inicioAdmin(Model modelo, HttpSession session) {
+		if(session.getAttribute("sesion_usuario") != null) {
+			if(session.getAttribute("sesion_usuario").equals("admin")) {
+			modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
+			modelo.addAttribute("atr_listaProductos", repoProductos.findAll());
+			modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
 
-		// crear un producto vacio y pasarselo al formulario para que los th:field no
-		// den error
-		modelo.addAttribute("obj_producto", new Producto());
-		return "admin";
+			// crear un producto vacio y pasarselo al formulario para que los th:field no
+			// den error
+			modelo.addAttribute("obj_producto", new Producto());
+			return "admin";
+			}
+			return "home";
+		}else {
+			return "redirect:/login";
+		}
+		
 	}
+	
+	@RequestMapping("/comprobacionCredenciales")
+	public String comprobacionCredenciales(Model modelo,  @ModelAttribute("obj_usuario") Usuario user, HttpSession session ) {
+		if(user.getUsuario().equals("admin") && user.getContrasena().equals("1234")) {
+			//crear sesion
+			session.setAttribute("sesion_usuario", user.getUsuario());
+			System.out.println("CREDENCIALES CORRECTAS");
+			return "redirect:/superuser";
+		}else {
+			System.out.println("NOPE");
+			return "login";
+		}
+		
+	}
+	
+	@RequestMapping("/login")
+	public String login(Model modelo) {
+		modelo.addAttribute("obj_usuario", new Usuario());
+		return "login";
+	}
+
 
 	/*
 	 * public String nuevoProducto(Model modelo,
@@ -89,10 +122,5 @@ public class AdminControlador {
 		return "form_modificar";
 	}
 
-	// pasar como parametros el input hidden del string de la imagen y el objeto
-	// para guardarlo en la bd
-//	 public String formularioRelleno(){
-//	 Auxiliar.guardarImagen(producto, foto); //revisar aun no es funcional esta guardada en auxiliares
-//	 }
 
 }
