@@ -40,6 +40,52 @@
 	</section>
 </div>
 
+
+<!--FORMULARIO DE MODIFICAR y GUARDAR-->
+
+<div th:fragment="formulario">
+	<form class="product-form" method="POST" enctype="multipart/form-data" th:action="@{/guardarProducto}"
+		th:object="${obj_producto}">
+
+		<div class="form-group">
+			<label for="productName">Nombre:</label>
+			<input th:field="*{nombre}" th:value="*{nombre}" type="text" id="productName" name="nombre" required />
+		</div>
+
+		<div class="form-group">
+			<label for="productPrice">Precio:</label>
+			<input th:field="*{precio}" th:value="*{precio}" type="number" id="productPrice" name="precio" step="0.01"
+				required />
+		</div>
+
+		<div class="form-group">
+			<label for="productCategory">Categoría:</label>
+			<select th:field="*{categoria.id}">
+				<option th:each="elem : ${atr_listaCategorias}" th:value="${elem.id}" th:text="${elem.categoria}">
+				</option>
+			</select>
+
+		</div>
+
+		<div class="form-group">
+			<label for="GenderCategory">Genero:</label>
+			<select th:field="*{genero.id}" id="GenderCategory" name="genero">
+				<option th:each="elem: ${atr_listaGeneros}" th:value="${elem.id}" th:text="${elem.genero}"></option>
+			</select>
+		</div>
+
+		<div class="form-group">
+			<label for="productImage">Imagen:</label>
+			<input type="file" id="imagen" name="imagen" accept="image/*" />
+		</div>
+
+		<input type="hidden" id="id_hidden" name="id_hidden" th:field="*{id}" />
+		<input type="hidden" id="imagen_hidden" name="imagen_hidden" th:field="*{foto}" />
+
+		<button type="submit" class="submit-button">Guardar Producto</button>
+	</form>
+
+</div>
 <!--FOOTER-->
 <div th:fragment="pie">
 	<footer>

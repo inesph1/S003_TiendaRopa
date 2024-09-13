@@ -59,13 +59,11 @@ public class AdminControlador {
 	@RequestMapping("/guardarProducto")
 	public String nuevoProducto(Model modelo, @ModelAttribute("obj_producto") Producto producto,
 			@RequestParam("imagen") MultipartFile foto) {
-		System.out.println("--------------------------------------------------------------");
-		System.out.println(producto);
 
-
-
-		Auxiliar.guardarImagen(producto, foto);
-	        repoProductos.save(producto);
+		System.out.println(producto.toString());
+		System.out.println("VALOR ID EN GUARDAR PRODUCTO "+ producto.getId());
+		Auxiliar.guardarImagen(producto, foto );
+		repoProductos.save(producto);
 		return "redirect:/superuser";
 	}
 
@@ -75,23 +73,26 @@ public class AdminControlador {
 		return "redirect:/superuser";
 	}
 
-	/*
-	 * @RequestMapping("/adminModificarPrenda") public String modificarPrenda(Model
-	 * modelo, @RequestParam(value="id", required=false) Integer valorId) {
-	 * 
-	 * Producto prod = new Producto();
-	 * 
-	 * if(valorId!=null) { prod = repoProductos.findById(valorId).orElse(new
-	 * Producto()); }
-	 * 
-	 * 
-	 * modelo.addAttribute("obj_producto", prod);
-	 * modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
-	 * modelo.addAttribute("atr_listaGeneros", repoGenero.findAll()); return ""; }
-	 *
-	 *
-	 *pasar como parametros el input hidden del string de la imagen y el objeto para guardarlo en la bd
-	 *public String formularioRelleno(){
-	 *Auxiliares.guardarImagen(producto, archivo); //revisar aun no es funcional esta guardada en auxiliares}
-	 */
+	@RequestMapping("/adminModificarPrenda")
+	public String modificarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId) {
+
+		System.out.println("VALOR ID"+ valorId);
+		Producto prod = new Producto();
+
+		if (valorId != null) {
+			prod = repoProductos.findById(valorId).orElse(new Producto());
+		}
+
+		modelo.addAttribute("obj_producto", prod);
+		modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
+		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
+		return "form_modificar";
+	}
+
+	// pasar como parametros el input hidden del string de la imagen y el objeto
+	// para guardarlo en la bd
+//	 public String formularioRelleno(){
+//	 Auxiliar.guardarImagen(producto, foto); //revisar aun no es funcional esta guardada en auxiliares
+//	 }
+
 }

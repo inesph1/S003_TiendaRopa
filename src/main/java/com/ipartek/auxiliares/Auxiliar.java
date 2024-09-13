@@ -31,13 +31,19 @@ public class Auxiliar {
 				Path ruta = Paths.get("src/main/resources/static/imagenes", nombreArchivo);
 				
 				Files.write(ruta, archivo.getBytes());
-				
 				prod.setFoto(nombreArchivo);
+				//System.out.println("ATRIBUTO FOTO PRODUCTO "+prod.getFoto());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}else if(!(prod.getFoto().equals(""))){
+			//System.out.println("hay input");
+			//System.out.println("ATRIBUTO FOTO PRODUCTO NO ES NULO"+prod.getFoto());
+			prod.setFoto(prod.getFoto());
+			
 		}else {
+			System.out.println("ATRIBUTO FOTO PRODUCTO ES NULO"+prod.getFoto());
 			prod.setFoto("default.jpg");
 		}
 	}

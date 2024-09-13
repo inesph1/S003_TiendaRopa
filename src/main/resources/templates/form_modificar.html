@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="estilos/principal.css">
+	<link rel="stylesheet" href="estilos/home.css">
+	<title>Inicio</title>
+</head>
+
+<body>
+
+	<div th:include="plantilla.html::cabecera"></div>
+
+	<div th:include="plantilla.html::navBar"></div>
+
+	<main>
+		<div th:include="plantilla.html::formulario"></div>
+	</main>
+
+	<div th:include="plantilla.html::pie"></div>
+
+</body>
+
+</html>
