@@ -37,65 +37,54 @@ public class AdminControlador {
 	@Autowired
 	private GeneroRepo repoGenero;
 
-	// @Value("${upload.dir}")
-	// private String uploadDir;
-
 	@RequestMapping("/superuser")
 	public String inicioAdmin(Model modelo, HttpSession session) {
-		if(session.getAttribute("sesion_usuario") != null) {
-			if(session.getAttribute("sesion_usuario").equals("admin")) {
-			modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
-			modelo.addAttribute("atr_listaProductos", repoProductos.findAll());
-			modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
+		if (session.getAttribute("sesion_usuario") != null) {
+			if (session.getAttribute("sesion_usuario").equals("admin")) {
+				modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
+				modelo.addAttribute("atr_listaProductos", repoProductos.findAll());
+				modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
 
-			// crear un producto vacio y pasarselo al formulario para que los th:field no
-			// den error
-			modelo.addAttribute("obj_producto", new Producto());
-			return "admin";
+				// crear un producto vacio y pasarselo al formulario para que los th:field no
+				// den error
+				modelo.addAttribute("obj_producto", new Producto());
+				return "admin";
 			}
 			return "home";
-		}else {
+		} else {
 			return "redirect:/login";
 		}
-		
+
 	}
-	
+
 	@RequestMapping("/comprobacionCredenciales")
-	public String comprobacionCredenciales(Model modelo,  @ModelAttribute("obj_usuario") Usuario user, HttpSession session ) {
-		if(user.getUsuario().equals("admin") && user.getContrasena().equals("1234")) {
-			//crear sesion
+	public String comprobacionCredenciales(Model modelo, @ModelAttribute("obj_usuario") Usuario user,
+			HttpSession session) {
+		if (user.getUsuario().equals("admin") && user.getContrasena().equals("1234")) {
+			// crear sesion
 			session.setAttribute("sesion_usuario", user.getUsuario());
 			System.out.println("CREDENCIALES CORRECTAS");
 			return "redirect:/superuser";
-		}else {
+		} else {
 			System.out.println("NOPE");
 			return "login";
 		}
-		
+
 	}
-	
+
 	@RequestMapping("/login")
 	public String login(Model modelo) {
 		modelo.addAttribute("obj_usuario", new Usuario());
 		return "login";
 	}
 
-
-	/*
-	 * public String nuevoProducto(Model modelo,
-	 * 
-	 * @ModelAttribute("obj_producto") Producto producto,
-	 * 
-	 * @RequestParam("file") MultipartFile foto) {
-	 */
-
 	@RequestMapping("/guardarProducto")
 	public String nuevoProducto(Model modelo, @ModelAttribute("obj_producto") Producto producto,
 			@RequestParam("imagen") MultipartFile foto) {
 
 		System.out.println(producto.toString());
-		System.out.println("VALOR ID EN GUARDAR PRODUCTO "+ producto.getId());
-		Auxiliar.guardarImagen(producto, foto );
+		System.out.println("VALOR ID EN GUARDAR PRODUCTO " + producto.getId());
+		Auxiliar.guardarImagen(producto, foto);
 		repoProductos.save(producto);
 		return "redirect:/superuser";
 	}
@@ -109,7 +98,7 @@ public class AdminControlador {
 	@RequestMapping("/adminModificarPrenda")
 	public String modificarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId) {
 
-		System.out.println("VALOR ID"+ valorId);
+		System.out.println("VALOR ID" + valorId);
 		Producto prod = new Producto();
 
 		if (valorId != null) {
@@ -121,6 +110,5 @@ public class AdminControlador {
 		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
 		return "form_modificar";
 	}
-
 
 }
