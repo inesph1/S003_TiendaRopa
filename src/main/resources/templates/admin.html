@@ -16,12 +16,13 @@
 	<div th:include="plantilla.html::navBar"></div>
 
 	<main>
-		
+
 		<div th:include="plantilla.html::formulario"></div>
 
 		<table>
 			<thead>
 				<th>Id</th>
+				<th>Imagen</th>
 				<th>Producto</th>
 				<th>Precio</th>
 				<th>Categoria</th>
@@ -31,6 +32,12 @@
 			<tbody>
 				<tr th:each="elemento : ${atr_listaProductos}">
 					<td th:text="${elemento.id}"></td>
+					<td>
+						<img th:src="@{/imagenes/{foto}(foto=${elemento.foto})}" alt="Imagen"
+							style="max-width: 100px; max-height: 100px;" />
+
+						<br><a th:href="@{/borrarImagenServidor(id=${elemento.id})}">Borrar imagen del servidor </a>
+					</td>
 					<td th:text="${elemento.nombre}"></td>
 					<td th:text="${elemento.precio}"></td>
 					<td th:text="${elemento.categoria.categoria}"></td>

@@ -70,6 +70,19 @@ main {
     flex-grow: 1;
 }
 
+/* Mensaje de error */
+.error-message {
+    color: #6a1b2e; /* Color del texto */
+    background-color: #ffe6e6; /* Fondo rojo claro */
+    border: 1px solid #6a1b2e; /* Borde del mensaje en el color rojo */
+    padding: 10px; /* Espacio interno */
+    font-size: 14px; /* Tamaño de fuente */
+    margin-bottom: 15px; /* Espacio debajo del mensaje */
+    border-radius: 4px; /* Bordes redondeados para mejor apariencia */
+	text-align: center; 
+}
+
+
 /* Pie de página */
 footer {
     background-color: #333;

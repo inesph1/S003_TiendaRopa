@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,21 +62,39 @@ public class AdminControlador {
 	@RequestMapping("/comprobacionCredenciales")
 	public String comprobacionCredenciales(Model modelo, @ModelAttribute("obj_usuario") Usuario user,
 			HttpSession session) {
-		
+
+		String errorMsj = "";
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		Usuario usuario = new Usuario();
 		usuario = repoUsuario.getReferenceById(3);
-		//String pass =  passwordEncoder.encode(user.getContrasena()); Comparar sin encriptar no encriptar y comparar
-		System.out.println("USEEEEEEEER"+usuario.getContrasena());
+		// String pass = passwordEncoder.encode(user.getContrasena()); Comparar sin
+		// encriptar no encriptar y comparar
+		// System.out.println("USEEEEEEEER"+usuario.getContrasena());
 
-		
-		if (user.getUsuario().equals(usuario.getUsuario()) && passwordEncoder.matches(user.getContrasena(), usuario.getContrasena())) {
+		if (user.getUsuario().equals(usuario.getUsuario())
+				&& passwordEncoder.matches(user.getContrasena(), usuario.getContrasena())) {
 			// crear sesion
 			session.setAttribute("sesion_usuario", user.getUsuario());
 			System.out.println("CREDENCIALES CORRECTAS");
 			return "redirect:/superuser";
 		} else {
+
 			System.out.println("NOPE");
+			if (session.getAttribute("intentos") != null) {
+				int valorAnterior = (int) session.getAttribute("intentos");
+				int valorActual = valorAnterior + 1;
+				session.setAttribute("intentos", valorActual);
+				errorMsj = "Credenciales incorrectas. \nIntentos restantes: " + (3 - valorActual);
+				if (valorActual >= 3) {
+					errorMsj = "Cuenta bloqueada. Pongase en contacto con el administrador";
+					// hacer lo necesario para bloquear el acceso o guardar el usuario
+				}
+			} else {
+				session.setAttribute("intentos", 1);
+				errorMsj = "Credenciales incorrectas. \nIntentos restantes: 2";
+			}
+
+			modelo.addAttribute("error", errorMsj); // lo pasa al msj de error del html
 			return "login";
 		}
 
@@ -106,23 +123,11 @@ public class AdminControlador {
 			prod = repoProductos.findById(valorId).orElse(prod);
 			String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
 			File archivoFoto = new File(ruta);
+			
+			//BORRAR FOTO SERVIDOR
+			Auxiliar.borrarImagenServidor(prod, archivoFoto);
 
-			//BORRADO DE LA IMAGEN DEL "SERVIDOR"
-			if (archivoFoto.exists()) {
-				if (!(ruta.equals("src/main/resources/static/imagenes/default.jpg"))) {
-					if (archivoFoto.delete()) {
-						System.out.println("Foto borrada de la BD");
-					} else {
-						System.out.println("No se ha podido borrar la foto de la BD");
-					}
-				} else {
-					System.out.println("La foto default no se puede borrar");
-				}
-
-			} else {
-				System.out.println("Foto no encontrada");
-			}
-
+			//BORRAR EL PRODUCTO DE LA BD
 			repoProductos.deleteById(valorId);
 		}
 
@@ -145,4 +150,20 @@ public class AdminControlador {
 		return "form_modificar";
 	}
 
+	@RequestMapping("/borrarImagenServidor")
+	public String borrarImagenServidor(Model modelo, @RequestParam(value = "id", required = false) Integer valorId) {
+
+		Producto prod = new Producto();
+		prod = repoProductos.findById(valorId).orElse(prod);
+		String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
+		File archivoFoto = new File(ruta);
+		
+		//BORRAR FOTO SERVIDOR
+		Auxiliar.borrarImagenServidor(prod, archivoFoto);
+		
+		//CAMBIAR LA RUTA DEL PRODUCTO A DEFAULT Y GUARDAR
+		prod.setFoto("default.jpg");
+		repoProductos.save(prod);
+		return "redirect:/superuser";
+	}
 }

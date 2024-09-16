@@ -50,7 +50,7 @@ public class Auxiliar {
 		}
 	}
 	
-	public static void guardarImagenMetodoLargo(Producto producto, MultipartFile foto) {
+	/*public static void guardarImagenMetodoLargo(Producto producto, MultipartFile foto) {
 		//es importante porque al estar ejecutandose el programa no permite guardar la foto en la ruta por lo que hay que usar esto
 		 String uploadDir =  new File("src/main/resources/static/imagenes").getAbsolutePath(); 
 	        if (!foto.isEmpty()) {
@@ -68,6 +68,27 @@ public class Auxiliar {
 	        } else {
 	            producto.setFoto("default.jpg"); //valor por defecto
 	        }
+	}*/
+	
+	public static void borrarImagenServidor(Producto prod, File archivoFoto) {
+		
+		String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
+		
+		if (archivoFoto.exists()) {
+			if (!(ruta.equals("src/main/resources/static/imagenes/default.jpg"))) {
+				if (archivoFoto.delete()) {
+					System.out.println("Foto borrada de la BD");
+				} else {
+					System.out.println("No se ha podido borrar la foto de la BD");
+				}
+			} else {
+				System.out.println("La foto default no se puede borrar");
+			}
+		} else {
+			System.out.println("Foto no encontrada");
+		}
+
+		
 	}
 
 }

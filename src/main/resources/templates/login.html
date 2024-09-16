@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Login</title>
+	<link rel="stylesheet" href="/estilos/principal.css">
     <link rel="stylesheet" href="/estilos/login.css">
 </head>
 <body>
     <div class="login-container">
         <form class="login-form" method="POST" th:action="@{/comprobacionCredenciales}" th:object="${obj_usuario}">
             <h2>Iniciar Sesión</h2>
-            
+            <div th:if="${error}" class="error-message" th:text="${error}"></div>
             <div class="form-group">
                 <label for="username">Nombre de Usuario:</label>
                 <input type="text" th:field="*{usuario}" required>
