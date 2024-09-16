@@ -23,6 +23,7 @@ import com.ipartek.modelo.Usuario;
 import com.ipartek.repositorio.CategoriaRepo;
 import com.ipartek.repositorio.GeneroRepo;
 import com.ipartek.repositorio.ProductosRepo;
+import com.ipartek.repositorio.UsuariosRepo;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.Session;
@@ -36,6 +37,8 @@ public class AdminControlador {
 	private CategoriaRepo repoCategoria;
 	@Autowired
 	private GeneroRepo repoGenero;
+	@Autowired
+	private UsuariosRepo repoUsuario;
 
 	@RequestMapping("/superuser")
 	public String inicioAdmin(Model modelo, HttpSession session) {
@@ -60,7 +63,10 @@ public class AdminControlador {
 	@RequestMapping("/comprobacionCredenciales")
 	public String comprobacionCredenciales(Model modelo, @ModelAttribute("obj_usuario") Usuario user,
 			HttpSession session) {
-		if (user.getUsuario().equals("admin") && user.getContrasena().equals("1234")) {
+		Usuario usuario = new Usuario();
+		usuario = repoUsuario.getReferenceById(1);
+		
+		if (user.getUsuario().equals(usuario.getUsuario()) && user.getContrasena().equals(usuario.getContrasena())) {
 			// crear sesion
 			session.setAttribute("sesion_usuario", user.getUsuario());
 			System.out.println("CREDENCIALES CORRECTAS");
@@ -82,8 +88,8 @@ public class AdminControlador {
 	public String nuevoProducto(Model modelo, @ModelAttribute("obj_producto") Producto producto,
 			@RequestParam("imagen") MultipartFile foto) {
 
-		System.out.println(producto.toString());
-		System.out.println("VALOR ID EN GUARDAR PRODUCTO " + producto.getId());
+		//System.out.println(producto.toString());
+		//System.out.println("VALOR ID EN GUARDAR PRODUCTO " + producto.getId());
 		Auxiliar.guardarImagen(producto, foto);
 		repoProductos.save(producto);
 		return "redirect:/superuser";
@@ -91,7 +97,32 @@ public class AdminControlador {
 
 	@RequestMapping("/adminBorrarPrenda")
 	public String borrarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId) {
-		repoProductos.deleteById(valorId);
+
+		if (valorId != null) {
+			Producto prod = new Producto();
+			prod = repoProductos.findById(valorId).orElse(prod);
+			String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
+			File archivoFoto = new File(ruta);
+
+			//BORRADO DE LA IMAGEN DEL "SERVIDOR"
+			if (archivoFoto.exists()) {
+				if (!(ruta.equals("src/main/resources/static/imagenes/default.jpg"))) {
+					if (archivoFoto.delete()) {
+						System.out.println("Foto borrada de la BD");
+					} else {
+						System.out.println("No se ha podido borrar la foto de la BD");
+					}
+				} else {
+					System.out.println("La foto default no se puede borrar");
+				}
+
+			} else {
+				System.out.println("Foto no encontrada");
+			}
+
+			repoProductos.deleteById(valorId);
+		}
+
 		return "redirect:/superuser";
 	}
 
