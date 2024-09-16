@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -63,10 +63,15 @@ public class AdminControlador {
 	@RequestMapping("/comprobacionCredenciales")
 	public String comprobacionCredenciales(Model modelo, @ModelAttribute("obj_usuario") Usuario user,
 			HttpSession session) {
-		Usuario usuario = new Usuario();
-		usuario = repoUsuario.getReferenceById(1);
 		
-		if (user.getUsuario().equals(usuario.getUsuario()) && user.getContrasena().equals(usuario.getContrasena())) {
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		Usuario usuario = new Usuario();
+		usuario = repoUsuario.getReferenceById(3);
+		//String pass =  passwordEncoder.encode(user.getContrasena()); Comparar sin encriptar no encriptar y comparar
+		System.out.println("USEEEEEEEER"+usuario.getContrasena());
+
+		
+		if (user.getUsuario().equals(usuario.getUsuario()) && passwordEncoder.matches(user.getContrasena(), usuario.getContrasena())) {
 			// crear sesion
 			session.setAttribute("sesion_usuario", user.getUsuario());
 			System.out.println("CREDENCIALES CORRECTAS");
@@ -88,8 +93,6 @@ public class AdminControlador {
 	public String nuevoProducto(Model modelo, @ModelAttribute("obj_producto") Producto producto,
 			@RequestParam("imagen") MultipartFile foto) {
 
-		//System.out.println(producto.toString());
-		//System.out.println("VALOR ID EN GUARDAR PRODUCTO " + producto.getId());
 		Auxiliar.guardarImagen(producto, foto);
 		repoProductos.save(producto);
 		return "redirect:/superuser";
