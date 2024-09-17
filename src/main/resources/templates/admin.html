@@ -18,6 +18,7 @@
 	<main>
 
 		<div th:if="${feedback}" class="feedback-message" th:text="${feedback}"></div>
+		<div th:if="${error}" class="error-message" th:text="${error}"></div>
 		<div th:include="plantilla.html::formulario"></div>
 
 		<table>

@@ -61,24 +61,58 @@ public class Auxiliar {
 	 * } } else { producto.setFoto("default.jpg"); //valor por defecto } }
 	 */
 
-	public static void borrarImagenServidor(Producto prod, File archivoFoto) {
+	public static String borrarImagenServidor(Producto prod, File archivoFoto) {
 
 		String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
+		String feed ="";
 
 		if (archivoFoto.exists()) {
 			if (!(ruta.equals("src/main/resources/static/imagenes/default.jpg"))) {
 				if (archivoFoto.delete()) {
 					System.out.println("Foto borrada de la BD");
+					feed = "Foto borrada de la BD";
 				} else {
 					System.out.println("No se ha podido borrar la foto de la BD");
+					feed = Auxiliar.gestionErrores(4);
 				}
 			} else {
 				System.out.println("La foto default no se puede borrar");
+				feed = Auxiliar.gestionErrores(5);
 			}
 		} else {
 			System.out.println("Foto no encontrada");
+			feed = Auxiliar.gestionErrores(6);
 		}
+		
+		return feed;
+	}
+	
+	public static String gestionErrores(int codigo) {
+		String error = "";
 
+		switch (codigo) {
+		case 1:
+			error = "Error al guardar el producto";
+			break;
+		case 2:
+			error = "Credenciales incorrectas. ";
+			break;
+		case 3:
+			error ="Cuenta bloqueada. Pongase en contacto con el administrador";
+			break;
+		case 4:
+			error = "No se ha podido borrar la foto de la BD";
+			break;
+		case 5:
+			error="La foto default no se puede borrar";
+			break;
+		case 6:
+			error="Foto no encontrada";
+			break;
+		}
+		
+		return error;
+			
 	}
 
 }

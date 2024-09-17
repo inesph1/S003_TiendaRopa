@@ -84,17 +84,17 @@ public class AdminControlador {
 						&& passwordEncoder.matches(user.getContrasena(), usuario.getContrasena())) {
 					// crear sesion
 					session.setAttribute("sesion_usuario", user.getUsuario());
-					System.out.println("CREDENCIALES CORRECTAS");
+					//System.out.println("CREDENCIALES CORRECTAS");
 					return "redirect:/superuser";
 				} else {
-					System.out.println("NOPE");
+					//System.out.println("NOPE");
 					if (session.getAttribute("intentos") != null) {
 						int valorAnterior = (int) session.getAttribute("intentos");
 						int valorActual = valorAnterior + 1;
 						session.setAttribute("intentos", valorActual);
-						errorMsj = "Credenciales incorrectas. \nIntentos restantes: " + (3 - valorActual);
+						errorMsj = Auxiliar.gestionErrores(2)+"\nIntentos restantes: " + (3 - valorActual);
 						if (valorActual >= 3) {
-							errorMsj = "Cuenta bloqueada. Pongase en contacto con el administrador";
+							errorMsj =  Auxiliar.gestionErrores(3);
 							// BANEAR USUARIO
 							Rol rolBaneado = repoRol.findById(3)
 									.orElseThrow(() -> new RuntimeException("Rol Baneado no encontrado"));
@@ -103,17 +103,17 @@ public class AdminControlador {
 						}
 					} else {
 						session.setAttribute("intentos", 1);
-						errorMsj = "Credenciales incorrectas. \nIntentos restantes: 2";
+						errorMsj = Auxiliar.gestionErrores(2)+"\nIntentos restantes: 2";
 					}
 
 				}
 
 			} else {
 				// entra aqui porque rol es 3 y la cuenta esta baneada
-				errorMsj = "Cuenta bloqueada. Pongase en contacto con el administrador";
+				errorMsj =  Auxiliar.gestionErrores(3);
 			}
 		} else {
-			errorMsj = "Credenciales incorrectas.";
+			errorMsj = Auxiliar.gestionErrores(2);
 		}
 		modelo.addAttribute("error", errorMsj); // lo pasa al msj de error del html
 		return "login";
@@ -130,8 +130,11 @@ public class AdminControlador {
 			@RequestParam("imagen") MultipartFile foto, RedirectAttributes redirectAttributes) {
 
 		Auxiliar.guardarImagen(producto, foto);
-		repoProductos.save(producto);
-		redirectAttributes.addFlashAttribute("feedback", "Prenda guardada");
+		if(repoProductos.save(producto)!= null) {
+			redirectAttributes.addFlashAttribute("feedback", "Prenda guardada");
+		}else {
+			redirectAttributes.addFlashAttribute("error", Auxiliar.gestionErrores(1));	
+		}
 		return "redirect:/superuser";
 	}
 
@@ -180,14 +183,14 @@ public class AdminControlador {
 		prod = repoProductos.findById(valorId).orElse(prod);
 		String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
 		File archivoFoto = new File(ruta);
-
+		
 		// BORRAR FOTO SERVIDOR
-		Auxiliar.borrarImagenServidor(prod, archivoFoto);
-
+		//Auxiliar.borrarImagenServidor(prod, archivoFoto); (se hace directa,emte en el atributo porque devuelve feedback)
+		redirectAttributes.addFlashAttribute("feedback", Auxiliar.borrarImagenServidor(prod, archivoFoto));
 		// CAMBIAR LA RUTA DEL PRODUCTO A DEFAULT Y GUARDAR
 		prod.setFoto("default.jpg");
 		repoProductos.save(prod);
-		redirectAttributes.addFlashAttribute("feedback", "Imagen borrada del servidor");
+		
 		return "redirect:/superuser";
 	}
 	
