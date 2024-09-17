@@ -5,10 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table
+@Table(name="usuarios")
 public class Usuario {
 	
 	@Id
@@ -16,23 +17,27 @@ public class Usuario {
 	@Column(name = "id")
 	private int id;
 	
-	@Column(name = "usuario")
+	@Column(name = "usuario", unique=true)
 	private String usuario;
 	@Column(name = "contrasena")
 	private String contrasena;
+	@ManyToOne
+	private Rol rol;
 
 	public Usuario() {
 		super();
 		this.id = 0;
 		this.usuario = "";
 		this.contrasena = "";
+		this.rol = new Rol();
 	}
 
-	public Usuario(int id, String usuario, String contrasena) {
+	public Usuario(int id, String usuario, String contrasena, Rol rol) {
 		super();
 		this.id= id;
 		this.usuario = usuario;
 		this.contrasena = contrasena;
+		this.rol = rol;
 	}
 	
 	public int getId() {
@@ -58,11 +63,20 @@ public class Usuario {
 	public void setContrasena(String contrasena) {
 		this.contrasena = contrasena;
 	}
+	
+	public Rol getRol() {
+		return rol;
+	}
+
+	public void setRol(Rol rol) {
+		this.rol = rol;
+	}
 
 	@Override
 	public String toString() {
-		return "Usuario [usuario=" + usuario + ", contrasena=" + contrasena + "]";
+		return "Usuario [id=" + id + ", usuario=" + usuario + ", contrasena=" + contrasena + ", rol=" + rol + "]";
 	}
+
 	
 	
 

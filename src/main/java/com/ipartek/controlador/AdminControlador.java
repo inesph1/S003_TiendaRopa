@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -18,10 +20,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ipartek.auxiliares.Auxiliar;
 import com.ipartek.modelo.Producto;
+import com.ipartek.modelo.Rol;
 import com.ipartek.modelo.Usuario;
 import com.ipartek.repositorio.CategoriaRepo;
 import com.ipartek.repositorio.GeneroRepo;
 import com.ipartek.repositorio.ProductosRepo;
+import com.ipartek.repositorio.RolRepo;
+import com.ipartek.repositorio.RolRepo;
 import com.ipartek.repositorio.UsuariosRepo;
 
 import jakarta.servlet.http.HttpSession;
@@ -38,18 +43,21 @@ public class AdminControlador {
 	private GeneroRepo repoGenero;
 	@Autowired
 	private UsuariosRepo repoUsuario;
+	@Autowired
+	private RolRepo repoRol;
 
 	@RequestMapping("/superuser")
 	public String inicioAdmin(Model modelo, HttpSession session) {
+		modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
+		modelo.addAttribute("atr_listaProductos", repoProductos.findAll());
+		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
+
+		// crear un producto vacio y pasarselo al formulario para que los th:field no
+		// den error
+		modelo.addAttribute("obj_producto", new Producto());
 		if (session.getAttribute("sesion_usuario") != null) {
 			if (session.getAttribute("sesion_usuario").equals("admin")) {
-				modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
-				modelo.addAttribute("atr_listaProductos", repoProductos.findAll());
-				modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
 
-				// crear un producto vacio y pasarselo al formulario para que los th:field no
-				// den error
-				modelo.addAttribute("obj_producto", new Producto());
 				return "admin";
 			}
 			return "home";
@@ -65,39 +73,48 @@ public class AdminControlador {
 
 		String errorMsj = "";
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		Usuario usuario = new Usuario();
-		usuario = repoUsuario.getReferenceById(3);
-		// String pass = passwordEncoder.encode(user.getContrasena()); Comparar sin
-		// encriptar no encriptar y comparar
-		// System.out.println("USEEEEEEEER"+usuario.getContrasena());
+		Optional<Usuario> usuarioOpcional = repoUsuario.findByNombreUsuario(user.getUsuario());
 
-		if (user.getUsuario().equals(usuario.getUsuario())
-				&& passwordEncoder.matches(user.getContrasena(), usuario.getContrasena())) {
-			// crear sesion
-			session.setAttribute("sesion_usuario", user.getUsuario());
-			System.out.println("CREDENCIALES CORRECTAS");
-			return "redirect:/superuser";
-		} else {
+		if (usuarioOpcional.isPresent()) {
+			Usuario usuario = usuarioOpcional.get();
+			if (usuario.getRol().getId() != 3) {
+				if (user.getUsuario().equals(usuario.getUsuario())
+						&& passwordEncoder.matches(user.getContrasena(), usuario.getContrasena())) {
+					// crear sesion
+					session.setAttribute("sesion_usuario", user.getUsuario());
+					System.out.println("CREDENCIALES CORRECTAS");
+					return "redirect:/superuser";
+				} else {
+					System.out.println("NOPE");
+					if (session.getAttribute("intentos") != null) {
+						int valorAnterior = (int) session.getAttribute("intentos");
+						int valorActual = valorAnterior + 1;
+						session.setAttribute("intentos", valorActual);
+						errorMsj = "Credenciales incorrectas. \nIntentos restantes: " + (3 - valorActual);
+						if (valorActual >= 3) {
+							errorMsj = "Cuenta bloqueada. Pongase en contacto con el administrador";
+							// BANEAR USUARIO
+							Rol rolBaneado = repoRol.findById(3)
+									.orElseThrow(() -> new RuntimeException("Rol Baneado no encontrado"));
+							usuario.setRol(rolBaneado);
+							repoUsuario.save(usuario);
+						}
+					} else {
+						session.setAttribute("intentos", 1);
+						errorMsj = "Credenciales incorrectas. \nIntentos restantes: 2";
+					}
 
-			System.out.println("NOPE");
-			if (session.getAttribute("intentos") != null) {
-				int valorAnterior = (int) session.getAttribute("intentos");
-				int valorActual = valorAnterior + 1;
-				session.setAttribute("intentos", valorActual);
-				errorMsj = "Credenciales incorrectas. \nIntentos restantes: " + (3 - valorActual);
-				if (valorActual >= 3) {
-					errorMsj = "Cuenta bloqueada. Pongase en contacto con el administrador";
-					// hacer lo necesario para bloquear el acceso o guardar el usuario
 				}
+
 			} else {
-				session.setAttribute("intentos", 1);
-				errorMsj = "Credenciales incorrectas. \nIntentos restantes: 2";
+				// entra aqui porque rol es 3 y la cuenta esta baneada
+				errorMsj = "Cuenta bloqueada. Pongase en contacto con el administrador";
 			}
-
-			modelo.addAttribute("error", errorMsj); // lo pasa al msj de error del html
-			return "login";
+		} else {
+			errorMsj = "Credenciales incorrectas.";
 		}
-
+		modelo.addAttribute("error", errorMsj); // lo pasa al msj de error del html
+		return "login";
 	}
 
 	@RequestMapping("/login")
@@ -123,11 +140,11 @@ public class AdminControlador {
 			prod = repoProductos.findById(valorId).orElse(prod);
 			String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
 			File archivoFoto = new File(ruta);
-			
-			//BORRAR FOTO SERVIDOR
+
+			// BORRAR FOTO SERVIDOR
 			Auxiliar.borrarImagenServidor(prod, archivoFoto);
 
-			//BORRAR EL PRODUCTO DE LA BD
+			// BORRAR EL PRODUCTO DE LA BD
 			repoProductos.deleteById(valorId);
 		}
 
@@ -157,13 +174,39 @@ public class AdminControlador {
 		prod = repoProductos.findById(valorId).orElse(prod);
 		String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
 		File archivoFoto = new File(ruta);
-		
-		//BORRAR FOTO SERVIDOR
+
+		// BORRAR FOTO SERVIDOR
 		Auxiliar.borrarImagenServidor(prod, archivoFoto);
-		
-		//CAMBIAR LA RUTA DEL PRODUCTO A DEFAULT Y GUARDAR
+
+		// CAMBIAR LA RUTA DEL PRODUCTO A DEFAULT Y GUARDAR
 		prod.setFoto("default.jpg");
 		repoProductos.save(prod);
 		return "redirect:/superuser";
 	}
+	
+	/* TRAMPA PARA GUARDAR REGISTROS 
+	  @RequestMapping("/guardarUsuarios")
+	public String guardarUsuarios() {
+		
+		String pass = "1234";
+		 PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String hash = passwordEncoder.encode(pass);
+		
+		Rol rolBaneado = repoRol.findById(3)
+			    .orElseThrow(() -> new RuntimeException("Rol Baneado no encontrado"));
+		Rol rolAdmin = repoRol.findById(1)
+			    .orElseThrow(() -> new RuntimeException("Rol Baneado no encontrado"));
+		Rol rolUser = repoRol.findById(2)
+			    .orElseThrow(() -> new RuntimeException("Rol Baneado no encontrado"));
+		
+		Usuario u1 = new Usuario(0,"admin", hash, rolAdmin);
+		Usuario u2 = new Usuario(0,"usuario", hash, rolUser);
+		Usuario u3 = new Usuario(0,"baneado", hash, rolBaneado);
+		
+		repoUsuario.save(u1);
+		repoUsuario.save(u2);
+		repoUsuario.save(u3);
+				
+		return "home";
+	}*/
 }
