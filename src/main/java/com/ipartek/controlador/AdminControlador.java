@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import com.ipartek.auxiliares.Auxiliar;
 import com.ipartek.modelo.Producto;
@@ -125,15 +127,16 @@ public class AdminControlador {
 
 	@RequestMapping("/guardarProducto")
 	public String nuevoProducto(Model modelo, @ModelAttribute("obj_producto") Producto producto,
-			@RequestParam("imagen") MultipartFile foto) {
+			@RequestParam("imagen") MultipartFile foto, RedirectAttributes redirectAttributes) {
 
 		Auxiliar.guardarImagen(producto, foto);
 		repoProductos.save(producto);
+		redirectAttributes.addFlashAttribute("feedback", "Prenda guardada");
 		return "redirect:/superuser";
 	}
 
 	@RequestMapping("/adminBorrarPrenda")
-	public String borrarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId) {
+	public String borrarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId, RedirectAttributes redirectAttributes) {
 
 		if (valorId != null) {
 			Producto prod = new Producto();
@@ -146,13 +149,14 @@ public class AdminControlador {
 
 			// BORRAR EL PRODUCTO DE LA BD
 			repoProductos.deleteById(valorId);
+			redirectAttributes.addFlashAttribute("feedback", "Prenda eliminada de la base de datos");
 		}
 
 		return "redirect:/superuser";
 	}
 
 	@RequestMapping("/adminModificarPrenda")
-	public String modificarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId) {
+	public String modificarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId, RedirectAttributes redirectAttributes) {
 
 		System.out.println("VALOR ID" + valorId);
 		Producto prod = new Producto();
@@ -164,11 +168,13 @@ public class AdminControlador {
 		modelo.addAttribute("obj_producto", prod);
 		modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
 		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
+		//como se redirige a un controlador hay que gacer uso de esto
+		redirectAttributes.addFlashAttribute("feedback", "Prenda modificada con éxito");
 		return "form_modificar";
 	}
 
 	@RequestMapping("/borrarImagenServidor")
-	public String borrarImagenServidor(Model modelo, @RequestParam(value = "id", required = false) Integer valorId) {
+	public String borrarImagenServidor(Model modelo, @RequestParam(value = "id", required = false) Integer valorId, RedirectAttributes redirectAttributes) {
 
 		Producto prod = new Producto();
 		prod = repoProductos.findById(valorId).orElse(prod);
@@ -181,6 +187,7 @@ public class AdminControlador {
 		// CAMBIAR LA RUTA DEL PRODUCTO A DEFAULT Y GUARDAR
 		prod.setFoto("default.jpg");
 		repoProductos.save(prod);
+		redirectAttributes.addFlashAttribute("feedback", "Imagen borrada del servidor");
 		return "redirect:/superuser";
 	}
 	
