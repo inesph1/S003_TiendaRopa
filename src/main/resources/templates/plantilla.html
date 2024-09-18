@@ -17,15 +17,15 @@
 <!--NAVBAR-->
 <div th:fragment="navBar">
 	<nav>
-		<ul th:each="elemento : ${atr_listaCategorias}">
-			<li>
+		<ul>
+			<li th:each="elemento : ${atr_listaCategorias}">
 				<a th:href="@{/menuGenerico(id=${elemento.id})}" class="enlace_menu"
 					th:text="${elemento.categoria}"></a>
 			</li>
-		</ul>
-		<ul>
 			<li>
-				<a th:href="@{/superuser}" class="enlace_menu">Sección Admin</a>
+				<a th:href="@{/superuser}" class="enlace_menu">Inicia sesion</a>
+				<a th:if="${session.sesion_usuario != null}" th:href="@{/cerrarSesion}" class="enlace_menu">Cerrar
+					sesion</a>
 			</li>
 		</ul>
 	</nav>

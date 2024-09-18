@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 import com.ipartek.auxiliares.Auxiliar;
+import com.ipartek.auxiliares.Log;
 import com.ipartek.modelo.Producto;
 import com.ipartek.modelo.Rol;
 import com.ipartek.modelo.Usuario;
@@ -31,6 +32,7 @@ import com.ipartek.repositorio.RolRepo;
 import com.ipartek.repositorio.RolRepo;
 import com.ipartek.repositorio.UsuariosRepo;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.Session;
 
@@ -49,7 +51,9 @@ public class AdminControlador {
 	private RolRepo repoRol;
 
 	@RequestMapping("/superuser")
-	public String inicioAdmin(Model modelo, HttpSession session) {
+	public String inicioAdmin(Model modelo, HttpSession session,  HttpServletRequest request) {
+		
+		String ipAddress = request.getRemoteAddr(); 
 		modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
 		modelo.addAttribute("atr_listaProductos", repoProductos.findAll());
 		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
@@ -58,23 +62,45 @@ public class AdminControlador {
 		// den error
 		modelo.addAttribute("obj_producto", new Producto());
 		if (session.getAttribute("sesion_usuario") != null) {
+			String user = (String) session.getAttribute("sesion_usuario");
+			Log.generarLog(1, user, ipAddress);
+			
 			if (session.getAttribute("sesion_usuario").equals("admin")) {
-
+				System.out.println("---------------------------");
+				System.out.println(session.getAttribute("sesion_usuario"));
 				return "admin";
 			}
+			
 			return "home";
 		} else {
 			return "redirect:/login";
 		}
 
 	}
+	
+	@RequestMapping("/cerrarSesion")
+	public String cerrarSesion( Model modelo, HttpSession session,  HttpServletRequest request) {
+		String ipAddress = request.getRemoteAddr(); 
+		
+		modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
+		modelo.addAttribute("atr_listaProductos", repoProductos.findAll());
+		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
+		
+		String user = (String) session.getAttribute("sesion_usuario");
+		session.invalidate();
+		Log.generarLog(2, user, ipAddress);
+		return "home";
+	}
 
 	@RequestMapping("/comprobacionCredenciales")
 	public String comprobacionCredenciales(Model modelo, @ModelAttribute("obj_usuario") Usuario user,
-			HttpSession session) {
+			HttpSession session, HttpServletRequest request) {
 
 		String errorMsj = "";
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		
+		//puede devolver la IP del proxy para conseguir la original habria que usar otro procedimiento
+		String ipAddress = request.getRemoteAddr(); 		
 		Optional<Usuario> usuarioOpcional = repoUsuario.findByNombreUsuario(user.getUsuario());
 
 		if (usuarioOpcional.isPresent()) {
@@ -93,23 +119,27 @@ public class AdminControlador {
 						int valorActual = valorAnterior + 1;
 						session.setAttribute("intentos", valorActual);
 						errorMsj = Auxiliar.gestionErrores(2)+"\nIntentos restantes: " + (3 - valorActual);
+						Log.generarLog(3, user.getUsuario(), ipAddress);
 						if (valorActual >= 3) {
 							errorMsj =  Auxiliar.gestionErrores(3);
-							// BANEAR USUARIO
+							// BANEAR USUARIO							
 							Rol rolBaneado = repoRol.findById(3)
 									.orElseThrow(() -> new RuntimeException("Rol Baneado no encontrado"));
 							usuario.setRol(rolBaneado);
 							repoUsuario.save(usuario);
+							Log.generarLog(4, user.getUsuario(), ipAddress);
 						}
 					} else {
 						session.setAttribute("intentos", 1);
 						errorMsj = Auxiliar.gestionErrores(2)+"\nIntentos restantes: 2";
+						Log.generarLog(3, user.getUsuario(), ipAddress);
 					}
 
 				}
 
 			} else {
 				// entra aqui porque rol es 3 y la cuenta esta baneada
+				Log.generarLog(5, user.getUsuario(), ipAddress);
 				errorMsj =  Auxiliar.gestionErrores(3);
 			}
 		} else {
