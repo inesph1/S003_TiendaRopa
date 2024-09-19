@@ -66,6 +66,13 @@
 			<version>5.8.0</version> <!-- Use the version compatible with your
 			Spring Boot version -->
 		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.10</version> <!-- Asegúrate de usar la versión más
+			reciente -->
+		</dependency>
+
 	</dependencies>
 
 	<build>
