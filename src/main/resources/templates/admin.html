@@ -31,6 +31,14 @@
 				<th>Seccion</th>
 				<th>Opciones</th>
 			</thead>
+			
+			<div class="botones-contenedor">
+				<span class="titulo-separador">Copias de Seguridad</span>
+			    <div class="botones-container">
+			        <a th:href="@{/GuardarCopiaSeguridad}" class="boton-GCS">Guardar Copia </a>
+			        <a th:href="@{/RestaurarCopiaSeguridad}" class="boton-RCS">Restaurar Copia Anterior</a>
+			    </div>
+			</div>
 			<tbody>
 				<tr th:each="elemento : ${atr_listaProductos}">
 					<td th:text="${elemento.id}"></td>

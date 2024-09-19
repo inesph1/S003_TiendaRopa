@@ -28,7 +28,8 @@ public class UsuarioControlador {
 
 		// obtener el id y compararlo y secun que sea hacer el redirect
 		String ruta = "home";
-
+		
+		//habria que modificar esto porque si se odifica la bd daria enlaces rotos HACER DINAMICO quizas con el id
 		if (valorId != null) {
 			switch (valorId) {
 			case 1:

@@ -106,3 +106,56 @@ table tbody td a {
 table tbody td a:hover {
     text-decoration: underline; /* Subrayado al pasar el ratón */
 }
+
+/*BOTONES DE COPIA DE SEGURIDAD*/
+/* Contenedor de los botones con borde */
+.botones-contenedor {
+    display: flex;
+    flex-direction: column; /* Apila el título sobre los botones */
+    align-items: center; /* Centra el contenido horizontalmente */
+    padding: 10px;
+    border: 1px solid #ddd; /* Borde gris claro alrededor */
+    border-radius: 5px;
+    background-color: #f9f9f9; /* Fondo similar a los botones */
+}
+
+
+/* Contenedor de los botones */
+.botones-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre los botones y el título */
+}
+
+/* Estilo para el título separador */
+.titulo-separador {
+    font-size: 24px; /* Tamaño de fuente más grande */
+    font-weight: bold; /* Texto en negrita */
+    color: #333; /* Color del texto */
+    margin-bottom: 15px; /* Espacio debajo del título */
+}
+
+/* Estilo general de los botones */
+.boton-RCS, .boton-GCS {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.boton-RCS {
+    background-color: rgb(255, 128, 0); /* Color de fondo naranja */
+}
+
+.boton-GCS {
+    background-color: #007bff; /* Color de fondo verde */
+}
+
+/* Estilo al pasar el ratón */
+.boton-RCS:hover, .boton-GCS:hover {
+    background-color: #333; /* Color más oscuro al pasar el ratón (ajustar si necesario) */
+}

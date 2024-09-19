@@ -16,9 +16,16 @@ header {
     text-align: center;
 }
 
+/* Estilo para el título */
 #header h1 {
     margin: 0;
     font-size: 2em;
+}
+
+
+/* Efecto hover para los botones */
+.enlace_menu_superior:hover {
+    opacity: 0.8; /* Efecto visual al pasar el ratón */
 }
 
 /* Menú lateral */

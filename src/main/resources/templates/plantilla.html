@@ -4,7 +4,10 @@
 <div th:fragment="cabecera">
 	<header>
 		<div id="header">
+			<a th:if="${session.sesion_usuario == null}" th:href="@{/superuser}" class="enlace_menu">Inicia sesion</a>
 			<h1>Tienda Ropa</h1>
+			<a th:if="${session.sesion_usuario != null}" th:href="@{/cerrarSesion}" class="enlace_menu">Cerrar
+				sesion</a>
 		</div>
 
 		<!--		<div id="header_der">-->
@@ -22,11 +25,7 @@
 				<a th:href="@{/menuGenerico(id=${elemento.id})}" class="enlace_menu"
 					th:text="${elemento.categoria}"></a>
 			</li>
-			<li>
-				<a th:href="@{/superuser}" class="enlace_menu">Inicia sesion</a>
-				<a th:if="${session.sesion_usuario != null}" th:href="@{/cerrarSesion}" class="enlace_menu">Cerrar
-					sesion</a>
-			</li>
+
 		</ul>
 	</nav>
 </div>
