@@ -47,61 +47,58 @@ public class InicializarDatos {
 	private RolRepo repoRol;
 	
 	@PostConstruct //se ejecuta cuando detectaun cambio en el pom
-	@Transactional //guarda en memoria y cuando indicas hace el commit y rollback si falla uno lo anterior no se guarda	
-//restaura desde la copia de seguridad
+	@Transactional
 	public void inicializarDatos() {
-		
 		String filePath = "C:\\Users\\html\\Desktop\\backup.txt";
-        Gson gson = new Gson();
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+		rellenarBD(filePath);			
+	}
+	
+	@Transactional
+	 //guarda en memoria y cuando indicas hace el commit y rollback si falla uno lo anterior no se guarda	
+	//restaura desde la copia de seguridad
+	public void rellenarBD(String filePath) {
+		  Gson gson = new Gson();
+	        
+	        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 
-			Type listType = new TypeToken<List<JsonElement>>() {}.getType(); //OJO A LOS IMPORTS
-			List<JsonElement> objetos = gson.fromJson(reader, listType);
-			
-			for (JsonElement elemento : objetos) {
-				  if (elemento.isJsonObject()) {
-					  JsonObject jsonObject = elemento.getAsJsonObject(); //obtener como objeto json
-		              if(jsonObject.has("nombre")) {
-		            	  // System.out.println("ES PRODUCTO");
-		            	  Producto prod = gson.fromJson(elemento, Producto.class);
-		            	  repoProducto.save(prod);
-		              }else if(jsonObject.has("categoria")) {
-		            	  //System.out.println("ES CATEGORIA");
-		            	  Categoria cat = gson.fromJson(elemento, Categoria.class);
-		            	  repoCategoria.save(cat);
-		              }else if(jsonObject.has("genero")) {
-		            	  //System.out.println("ES GENERO");
-		            	  Genero genero = gson.fromJson(elemento, Genero.class);
-		            	  repoGenero.save(genero);
-		              }else if(jsonObject.has("usuario")) {
-		            	 // System.out.println("ES USUARIO");        
-		            	  Usuario user = gson.fromJson(jsonObject, Usuario.class);
-		            	  repoUsuario.save(user);
-		              }else if(jsonObject.has("rol")) {
-		            	  //System.out.println("ES ROL");
-		            	  Rol rol = gson.fromJson(jsonObject, Rol.class);
-		            	  repoRol.save(rol);
-		              }
-				  }
-			}
-			
-			
-			//leer archivo csv
-			//obtener los objetos, segun las instancia guardarlos en una tabla u otra
-		} catch (JsonSyntaxException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		/*repoGenero.save(new Genero(4,"Unisex"));
-		repoGenero.save(new Genero(5,"Infantil niño"));
-		repoGenero.save(new Genero(6,"Infantil niña"));
-		
-		repoCategoria.save(new Categoria(0, "Shorts"));
-		repoCategoria.save(new Categoria(0, "Blazers"));
-		repoCategoria.save(new Categoria(0, "Vestidos"));*/
+				Type listType = new TypeToken<List<JsonElement>>() {}.getType(); //OJO A LOS IMPORTS
+				List<JsonElement> objetos = gson.fromJson(reader, listType);
 				
+				for (JsonElement elemento : objetos) {
+					  if (elemento.isJsonObject()) {
+						  JsonObject jsonObject = elemento.getAsJsonObject(); //obtener como objeto json
+			              if(jsonObject.has("nombre")) {
+			            	  // System.out.println("ES PRODUCTO");
+			            	  Producto prod = gson.fromJson(elemento, Producto.class);
+			            	  repoProducto.save(prod);
+			              }else if(jsonObject.has("categoria")) {
+			            	  //System.out.println("ES CATEGORIA");
+			            	  Categoria cat = gson.fromJson(elemento, Categoria.class);
+			            	  repoCategoria.save(cat);
+			              }else if(jsonObject.has("genero")) {
+			            	  //System.out.println("ES GENERO");
+			            	  Genero genero = gson.fromJson(elemento, Genero.class);
+			            	  repoGenero.save(genero);
+			              }else if(jsonObject.has("usuario")) {
+			            	 // System.out.println("ES USUARIO");        
+			            	  Usuario user = gson.fromJson(jsonObject, Usuario.class);
+			            	  repoUsuario.save(user);
+			              }else if(jsonObject.has("rol")) {
+			            	  //System.out.println("ES ROL");
+			            	  Rol rol = gson.fromJson(jsonObject, Rol.class);
+			            	  repoRol.save(rol);
+			              }
+					  }
+				}
+				
+				
+				//leer archivo csv
+				//obtener los objetos, segun las instancia guardarlos en una tabla u otra
+			} catch (JsonSyntaxException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
 	}
 	
 

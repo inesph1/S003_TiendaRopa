@@ -17,7 +17,17 @@
 
 	<main>
 
-		<div th:if="${feedback}" class="feedback-message" th:text="${feedback}"></div>
+	<div th:if="${feedback}" class="feedback-message" th:text="${feedback}">-->
+
+		</div>
+
+<!--<div th:if="${feedback}" class="feedback-message">-->
+<!--    <span th:text="${feedback}"></span>-->
+<!--    <span>El enlace debería estar aquí</span>-->
+<!--    <a th:href="@{/GuardarCopiaSeguridad}">Deshacer</a>-->
+<!--</div>-->
+   
+   
 		<div th:if="${error}" class="error-message" th:text="${error}"></div>
 		<div th:include="plantilla.html::formulario"></div>
 

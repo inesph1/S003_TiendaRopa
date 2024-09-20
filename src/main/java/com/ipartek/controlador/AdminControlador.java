@@ -87,8 +87,11 @@ public class AdminControlador {
 		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
 		
 		String user = (String) session.getAttribute("sesion_usuario");
-		session.invalidate();
-		Log.generarLog(2, user, ipAddress);
+		if(session.getAttribute("sesion_usuario")!=null) {
+			session.invalidate();
+			Log.generarLog(2, user, ipAddress);
+		}
+		
 		return "home";
 	}
 
@@ -157,14 +160,19 @@ public class AdminControlador {
 
 	@RequestMapping("/guardarProducto")
 	public String nuevoProducto(Model modelo, @ModelAttribute("obj_producto") Producto producto,
-			@RequestParam("imagen") MultipartFile foto, RedirectAttributes redirectAttributes) {
+			@RequestParam("imagen") MultipartFile foto, RedirectAttributes redirectAttributes,  HttpSession session) {
+		//SOLUCIONAR ERROR EN CASO DE Q ACCEDAN DIRECTAMENTE MEDIANTE EL CONTROLADOR
 
-		Auxiliar.guardarImagen(producto, foto);
-		if(repoProductos.save(producto)!= null) {
-			redirectAttributes.addFlashAttribute("feedback", "Prenda guardada");
-		}else {
-			redirectAttributes.addFlashAttribute("error", Auxiliar.gestionErrores(1));	
-		}
+				Auxiliar.guardarImagen(producto, foto);
+				if(repoProductos.save(producto)!= null) {
+					redirectAttributes.addFlashAttribute("feedback", "Prenda guardada");
+				}else {
+					redirectAttributes.addFlashAttribute("error", Auxiliar.gestionErrores(1));	
+				}
+
+
+			
+		
 		return "redirect:/superuser";
 	}
 
@@ -189,37 +197,52 @@ public class AdminControlador {
 	}
 
 	@RequestMapping("/adminModificarPrenda")
-	public String modificarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId, RedirectAttributes redirectAttributes) {
+	public String modificarPrenda(Model modelo, @RequestParam(value = "id", required = false) Integer valorId, RedirectAttributes redirectAttributes,  HttpSession session) {
 
-		System.out.println("VALOR ID" + valorId);
-		Producto prod = new Producto();
+		//comprobar sesion
+		if (session.getAttribute("sesion_usuario") != null) {
+			if (session.getAttribute("sesion_usuario").equals("admin")) {
+				
+				System.out.println("VALOR ID" + valorId);
+				Producto prod = new Producto();
 
-		if (valorId != null) {
-			prod = repoProductos.findById(valorId).orElse(new Producto());
+				if (valorId != null) {
+					prod = repoProductos.findById(valorId).orElse(new Producto());
+				}
+
+				modelo.addAttribute("obj_producto", prod);
+				modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
+				modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
+				//como se redirige a un controlador hay que gacer uso de esto
+				redirectAttributes.addFlashAttribute("feedback", "Prenda modificada con éxito");
+				return "form_modificar";
+			}
+			
+			return "redirect:/superuser";
+		} else {
+			return "redirect:/superuser";
 		}
-
-		modelo.addAttribute("obj_producto", prod);
-		modelo.addAttribute("atr_listaCategorias", repoCategoria.findAll());
-		modelo.addAttribute("atr_listaGeneros", repoGenero.findAll());
-		//como se redirige a un controlador hay que gacer uso de esto
-		redirectAttributes.addFlashAttribute("feedback", "Prenda modificada con éxito");
-		return "form_modificar";
+		
+		
 	}
 
 	@RequestMapping("/borrarImagenServidor")
 	public String borrarImagenServidor(Model modelo, @RequestParam(value = "id", required = false) Integer valorId, RedirectAttributes redirectAttributes) {
 
-		Producto prod = new Producto();
-		prod = repoProductos.findById(valorId).orElse(prod);
-		String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
-		File archivoFoto = new File(ruta);
+		if(valorId != null) {
+			Producto prod = new Producto();
+			prod = repoProductos.findById(valorId).orElse(prod);
+			String ruta = "src/main/resources/static/imagenes/" + prod.getFoto();
+			File archivoFoto = new File(ruta);
+			
+			// BORRAR FOTO SERVIDOR
+			//Auxiliar.borrarImagenServidor(prod, archivoFoto); (se hace directa,emte en el atributo porque devuelve feedback)
+			redirectAttributes.addFlashAttribute("feedback", Auxiliar.borrarImagenServidor(prod, archivoFoto));
+			// CAMBIAR LA RUTA DEL PRODUCTO A DEFAULT Y GUARDAR
+			prod.setFoto("default.jpg");
+			repoProductos.save(prod);
+		}
 		
-		// BORRAR FOTO SERVIDOR
-		//Auxiliar.borrarImagenServidor(prod, archivoFoto); (se hace directa,emte en el atributo porque devuelve feedback)
-		redirectAttributes.addFlashAttribute("feedback", Auxiliar.borrarImagenServidor(prod, archivoFoto));
-		// CAMBIAR LA RUTA DEL PRODUCTO A DEFAULT Y GUARDAR
-		prod.setFoto("default.jpg");
-		repoProductos.save(prod);
 		
 		return "redirect:/superuser";
 	}
