@@ -53,9 +53,10 @@ public class InicializarDatos {
 		rellenarBD(filePath);			
 	}
 	
-	@Transactional
+	
 	 //guarda en memoria y cuando indicas hace el commit y rollback si falla uno lo anterior no se guarda	
 	//restaura desde la copia de seguridad
+	@Transactional
 	public void rellenarBD(String filePath) {
 		  Gson gson = new Gson();
 	        

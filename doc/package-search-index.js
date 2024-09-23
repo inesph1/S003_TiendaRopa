@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.ipartek"},{"l":"com.ipartek.auxiliares"},{"l":"com.ipartek.controlador"},{"l":"com.ipartek.modelo"},{"l":"com.ipartek.repositorio"},{"l":"com.ipartek.servicios"}];updateSearchResults();
